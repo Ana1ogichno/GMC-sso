@@ -1,12 +1,10 @@
 import logging
 
-from fastapi import Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
 from app.common.consts import ErrorCodesEnums
 from app.common.contracts import IPasswordHelper
 from app.common.decorators.logger import LoggingFunctionInfo
-from app.common.logger.dependencies import get_base_logger
 from app.config.exception import BackendException
 from app.modules.auth.contracts import IAuthManagerService
 from app.modules.user.contracts import IUserRepository
@@ -44,7 +42,6 @@ class AuthManagerService(IAuthManagerService):
         self._user_repository = user_repository
 
     @LoggingFunctionInfo(
-        logger=Depends(get_base_logger),
         description="Authenticates a user using the provided credentials (email and password)."
     )
     async def authenticate(self, credentials: OAuth2PasswordRequestForm) -> UserInDBBase:

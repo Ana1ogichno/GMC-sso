@@ -1,13 +1,11 @@
 import logging
 
-from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.base import ExecutableOption
 
 from app.common.consts import ErrorCodesEnums
 from app.common.decorators.logger import LoggingFunctionInfo
-from app.common.logger.dependencies import get_base_logger
 from app.common.repositories import CrudRepository
 from app.modules.user.contracts import IUserRepository
 from app.modules.user.models import UserModel
@@ -47,7 +45,6 @@ class UserRepository(CrudRepository[UserModel, UserCreate, UserUpdate], IUserRep
         self._logger = logger
 
     @LoggingFunctionInfo(
-        logger=Depends(get_base_logger),
         description="Fetch user by email address from the database."
     )
     async def get_by_email(

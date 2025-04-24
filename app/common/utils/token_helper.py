@@ -3,14 +3,12 @@ import uuid
 from datetime import timedelta
 from uuid import UUID
 
-from fastapi import Depends
 from jose import jwt
 from redis import Redis
 
 from app.common.consts import ErrorCodesEnums
 from app.common.contracts.utils import ITokenHelper, ICustomDateTime
 from app.common.decorators.logger import LoggingFunctionInfo
-from app.common.logger.dependencies import get_base_logger
 from app.common.schemas import TokenData, LoginToken
 from app.config.exception import BackendException
 from app.config.settings import settings
@@ -48,7 +46,6 @@ class TokenHelper(ITokenHelper):
         self._custom_datetime = custom_datetime
 
     @LoggingFunctionInfo(
-        logger=Depends(get_base_logger),
         description="Create JWT token with custom payload, expiration, and type (access/refresh)"
     )
     def create_token(
@@ -86,7 +83,6 @@ class TokenHelper(ITokenHelper):
         return encoded_jwt
 
     @LoggingFunctionInfo(
-        logger=Depends(get_base_logger),
         description="Decode and validate JWT token, ensuring type and blacklist checks"
     )
     def token_payload(self, token: str, refresh: bool) -> TokenData:
@@ -136,7 +132,6 @@ class TokenHelper(ITokenHelper):
             raise BackendException(error=self._errors.Token.INVALID_TOKEN, cause=str(e))
 
     @LoggingFunctionInfo(
-        logger=Depends(get_base_logger),
         description="Generate a pair of JWT tokens (access and refresh) with unique JTIs"
     )
     def create_token_pair(self, payload: dict) -> LoginToken:

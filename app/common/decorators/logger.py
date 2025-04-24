@@ -1,54 +1,83 @@
+import inspect
 import logging
+
 from functools import wraps
-from typing import Annotated
-
-from fastapi import Depends
-
-from app.common.logger.dependencies import get_base_logger
+from typing import Callable, Any
 
 
 class LoggingFunctionInfo:
     """
-    Decorator class for logging the start of an asynchronous function's execution.
+    A decorator class for logging the execution of methods of a class instance.
 
-    Designed for use in FastAPI dependencies or service methods. Logs function name
-    and optional description when execution begins. Useful for tracing and debugging.
+    Requires the class instance to have a `_logger` attribute with `info` and `debug` methods.
     """
 
-    def __init__(
-            self,
-            logger: Annotated[logging.Logger, Depends(get_base_logger)],
-            description: str | None = None
-    ):
+    def __init__(self, description: str = ""):
         """
-        Initialize the LoggingFunctionInfo decorator.
+        Initialize the decorator with an optional description.
 
-        :param logger: Logger instance used for emitting debug logs.
-        :param description: Optional human-readable description of the function.
+        :param description: An optional description for the function's purpose.
         """
 
-        self._description = description
-        self._logger = logger
+        self.description = description
 
-    def __call__(self, func):
+    def __call__(self, func: Callable) -> Callable:
         """
-        Decorate an asynchronous function to log its invocation details.
+        Wrap the provided function with logging functionality.
 
-        :param func: The async function to decorate.
-        :return: Wrapped async function with logging.
+        Logs the function execution before and after calling it.
+        Determines if the function is async or sync and handles accordingly.
+
+        :param func: The function to decorate.
+        :return: The wrapped function (either async or sync).
         """
 
-        @wraps(func)
-        async def wrapper(*args, **kwargs):
-            log_message = f"Start: {func.__name__}"
-            if self._description:
-                log_message += f", description: {self._description}"
+        is_coroutine = inspect.iscoroutinefunction(func)
 
-            self._logger.debug(log_message)
+        if is_coroutine:
+            @wraps(func)
+            async def async_wrapper(instance, *args, **kwargs) -> Any:
+                """
+                Asynchronous wrapper to log function execution.
 
-            # Execute the original function
-            result = await func(*args, **kwargs)
+                Logs the start and end of an asynchronous function call.
 
-            return result
+                :param instance: The instance of the class calling the function.
+                :param args: Positional arguments for the function.
+                :param kwargs: Keyword arguments for the function.
+                :return: The result of the function execution.
+                """
 
-        return wrapper
+                logger: logging.Logger = getattr(instance, "_logger", None)
+                if logger:
+                    logger.info(f"→ {func.__name__}() called. {self.description}")
+                result = await func(instance, *args, **kwargs)
+                if logger:
+                    logger.info(f"← {func.__name__}() finished.")
+                return result
+
+            return async_wrapper
+
+        else:
+            @wraps(func)
+            def sync_wrapper(instance, *args, **kwargs) -> Any:
+                """
+                Synchronous wrapper to log function execution.
+
+                Logs the start and end of a synchronous function call.
+
+                :param instance: The instance of the class calling the function.
+                :param args: Positional arguments for the function.
+                :param kwargs: Keyword arguments for the function.
+                :return: The result of the function execution.
+                """
+
+                logger = getattr(instance, "_logger", None)
+                if logger:
+                    logger.info(f"→ {func.__name__}() called. {self.description}")
+                result = func(instance, *args, **kwargs)
+                if logger:
+                    logger.info(f"← {func.__name__}() finished.")
+                return result
+
+            return sync_wrapper

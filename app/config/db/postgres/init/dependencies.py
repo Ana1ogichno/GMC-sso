@@ -40,13 +40,13 @@ async def get_psql_initializer(
         db=db,
         logger=logger,
         error_codes=error_codes,
-        password_helper=password_helper
     )
 
     # Create user service with business logic capabilities
     user_service = await get_user_service(
         logger=logger,
         error_codes=error_codes,
+        password_helper=password_helper,
         user_repository=user_repository
     )
 

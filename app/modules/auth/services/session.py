@@ -1,10 +1,8 @@
 import logging
 
-from fastapi import Depends
 from redis import Redis
 
 from app.common.decorators.logger import LoggingFunctionInfo
-from app.common.logger.dependencies import get_base_logger
 from app.modules.auth.contracts import ISessionStorageService
 
 
@@ -37,7 +35,6 @@ class SessionStorageService(ISessionStorageService):
         self._logger = logger
 
     @LoggingFunctionInfo(
-        logger=Depends(get_base_logger),
         description="Invalidates a specific session by setting its expiration in Redis."
     )
     async def invalidate_session(self, session_id: str, expire_seconds: int):
@@ -61,7 +58,6 @@ class SessionStorageService(ISessionStorageService):
         self._logger.info(f"Session {session_id} invalidated successfully.")
 
     @LoggingFunctionInfo(
-        logger=Depends(get_base_logger),
         description="Invalidates all sessions for a user by expiring their keys in Redis."
     )
     async def invalidate_all_sessions(self, user_id: str, expire_seconds: int):

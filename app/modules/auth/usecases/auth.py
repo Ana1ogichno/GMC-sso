@@ -1,10 +1,8 @@
 import logging
 
-from fastapi import Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
 from app.common.decorators.logger import LoggingFunctionInfo
-from app.common.logger.dependencies import get_base_logger
 from app.common.schemas import LoginToken, RefreshToken, Msg
 from app.config.settings import settings
 from app.modules.auth.consts import AuthUseCaseEnums
@@ -56,7 +54,6 @@ class AuthUseCase(IAuthUseCase):
         self._enums = enums
 
     @LoggingFunctionInfo(
-        logger=Depends(get_base_logger),
         description="This function is responsible for generating a pair of access and refresh tokens for the user."
     )
     async def get_token_pair(
@@ -82,7 +79,6 @@ class AuthUseCase(IAuthUseCase):
         return await self._token_provider.create_token_pair(payload)
 
     @LoggingFunctionInfo(
-        logger=Depends(get_base_logger),
         description="This function refreshes the access token using the provided refresh token."
     )
     async def update_access_token(
@@ -113,7 +109,6 @@ class AuthUseCase(IAuthUseCase):
         )
 
     @LoggingFunctionInfo(
-        logger=Depends(get_base_logger),
         description="This function invalidates user tokens, either globally or for a specific session."
     )
     async def delete_tokens(

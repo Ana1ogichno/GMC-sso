@@ -1,16 +1,15 @@
 import logging
 from uuid import UUID
 
-from fastapi import Depends
 from sqlalchemy.sql.base import ExecutableOption
 
 from app.common.consts import ErrorCodesEnums
+from app.common.contracts import IPasswordHelper
 from app.common.decorators.logger import LoggingFunctionInfo
-from app.common.logger.dependencies import get_base_logger
 from app.config.exception import BackendException
 from app.modules.user.contracts import IUserRepository, IUserService
 from app.modules.user.models import UserModel
-from app.modules.user.schemas import UserCreate, UserInDBBase
+from app.modules.user.schemas import UserCreate, UserInDBBase, ClientUserCreate
 
 
 class UserService(IUserService):
@@ -27,6 +26,7 @@ class UserService(IUserService):
         self,
         errors: ErrorCodesEnums,
         logger: logging.Logger,
+        password_helper: IPasswordHelper,
         user_repository: IUserRepository
     ):
         """
@@ -34,15 +34,16 @@ class UserService(IUserService):
 
         :param errors: Enum container for application-specific error codes.
         :param logger: Logger instance for tracking user-related operations.
+        :param password_helper: Utility for securely hashing and verifying passwords.
         :param user_repository: Repository for accessing and managing user data.
         """
 
         self._errors = errors
         self._logger = logger
+        self._password_helper = password_helper
         self._user_repository = user_repository
 
     @LoggingFunctionInfo(
-        logger=Depends(get_base_logger),
         description="Retrieving a user by email address."
     )
     async def get_user_by_email(
@@ -61,7 +62,6 @@ class UserService(IUserService):
         )
 
     @LoggingFunctionInfo(
-        logger=Depends(get_base_logger),
         description="Retrieving a user by their session ID (SID)."
     )
     async def get_user_by_sid(
@@ -77,10 +77,9 @@ class UserService(IUserService):
         return await self._user_repository.get_by_sid(sid=sid)
 
     @LoggingFunctionInfo(
-        logger=Depends(get_base_logger),
         description="Creates a new user. Checks if the email already exists. If not, the user is created."
     )
-    async def create_user(self, user_in: UserCreate) -> UserModel:
+    async def create_user(self, user_in: ClientUserCreate) -> UserModel:
         """
         Creates a new user.
 
@@ -89,11 +88,14 @@ class UserService(IUserService):
         :raises BackendException: If a user with the given email already exists.
         """
 
-        user = await self._user_repository.get_by_email(email=user_in.email)
-
-        if user:
+        if await self._user_repository.get_by_email(email=user_in.email):
             raise BackendException(self._errors.User.EMAIL_ALREADY_EXISTS)
 
-        user = await self._user_repository.create(obj_in=user_in, with_commit=False)
+        obj_in = UserCreate(
+            email=user_in.email,
+            hashed_password=self._password_helper.get_password_hash(user_in.password)
+        )
+
+        user = await self._user_repository.create(obj_in=obj_in, with_commit=False)
 
         return user
