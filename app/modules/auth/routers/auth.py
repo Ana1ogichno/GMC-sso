@@ -12,9 +12,9 @@ from app.common.schemas import LoginToken, RefreshToken, Msg
 from ..consts import RoutersPath
 from ..contracts import IAuthUseCase
 from ..usecases.dependencies import get_auth_usecase
+from ...user.contracts import IUserUseCase
 from ...user.schemas import UserInDBBase, UserCreate
-from ...user.services import UserService
-from ...user.services.dependencies import get_user_service
+from ...user.usecases.dependencies import get_user_usecase
 
 router = APIRouter()
 
@@ -67,10 +67,10 @@ async def logout(
 @router.post(path=RoutersPath.register, response_model=UserInDBBase)
 async def register(
     user_in: UserCreate,
-    user_service: Annotated[UserService, Depends(get_user_service)],
+    user_usecase: Annotated[IUserUseCase, Depends(get_user_usecase)],
 ):
     """
-    User registering
+    User registering.
     """
 
-    return await user_service.create_user(user_in=user_in)
+    return await user_usecase.create_user(user_in=user_in)
