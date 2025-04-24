@@ -1,11 +1,13 @@
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 import asyncio
 import logging
-import sys
 
 from app.common.dependencies.db import get_db_session_provider
 from app.config.db.postgres.init.dependencies import get_psql_initializer
-
-sys.path = ["", ".."] + sys.path[1:]
 
 
 class DatabasesInitializer:

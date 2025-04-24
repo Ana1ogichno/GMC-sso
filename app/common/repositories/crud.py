@@ -1,7 +1,6 @@
 import logging
 from typing import TypeVar, Type, Any, Sequence
 
-from fastapi import Depends
 from pydantic import BaseModel as PydanticBaseModel
 from sqlalchemy import select, Select, Result
 from sqlalchemy.exc import IntegrityError
@@ -11,7 +10,6 @@ from sqlalchemy.sql.base import ExecutableOption
 from app.common.consts import ErrorCodesEnums
 from app.common.contracts import ICrudRepository
 from app.common.decorators.logger import LoggingFunctionInfo
-from app.common.logger.dependencies import get_base_logger
 from app.common.models import CoreModel
 from app.config.exception import BackendException
 
@@ -104,7 +102,6 @@ class CrudRepository(ICrudRepository[ModelType, CreateSchemaType, UpdateSchemaTy
             self._logger.debug(f"{self._model.__name__} created and flushed")
 
     @LoggingFunctionInfo(
-        logger=Depends(get_base_logger),
         description="Fetch a single record by its SID from the database"
     )
     async def get_by_sid(
@@ -127,7 +124,6 @@ class CrudRepository(ICrudRepository[ModelType, CreateSchemaType, UpdateSchemaTy
         return await self._get_single_result(query)
 
     @LoggingFunctionInfo(
-        logger=Depends(get_base_logger),
         description="Retrieve all records of the model from the database"
     )
     async def get_all(
@@ -149,7 +145,6 @@ class CrudRepository(ICrudRepository[ModelType, CreateSchemaType, UpdateSchemaTy
         return await self._get_all_results(query)
 
     @LoggingFunctionInfo(
-        logger=Depends(get_base_logger),
         description="Create a new record in the database"
     )
     async def create(
@@ -175,7 +170,6 @@ class CrudRepository(ICrudRepository[ModelType, CreateSchemaType, UpdateSchemaTy
             raise BackendException(error=self._errors.Common.NOT_UNIQUE) from e
 
     @LoggingFunctionInfo(
-        logger=Depends(get_base_logger),
         description="Update an existing record in the database"
     )
     async def update(
@@ -211,7 +205,6 @@ class CrudRepository(ICrudRepository[ModelType, CreateSchemaType, UpdateSchemaTy
             raise BackendException(error=self._errors.Common.NOT_UNIQUE) from e
 
     @LoggingFunctionInfo(
-        logger=Depends(get_base_logger),
         description="Delete a record from the database by its SID"
     )
     async def delete(self, *, sid: Any, with_commit: bool = True) -> ModelType | None:

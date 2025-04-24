@@ -13,8 +13,12 @@ class UserBase(CoreSchema):
     email: EmailStr
 
 
-class UserCreate(UserBase):
+class ClientUserCreate(UserBase):
     password: str
+
+
+class UserCreate(UserBase):
+    hashed_password: str
 
 
 @partial_schema

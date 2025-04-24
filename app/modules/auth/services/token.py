@@ -1,11 +1,9 @@
 import logging
 
-from fastapi import Depends
 from jose import jwt
 
 from app.common.contracts.utils import ITokenHelper
 from app.common.decorators.logger import LoggingFunctionInfo
-from app.common.logger.dependencies import get_base_logger
 from app.common.schemas import LoginToken
 from app.config.settings import settings
 from app.modules.auth.contracts import ITokenService
@@ -36,7 +34,6 @@ class TokenService(ITokenService):
         self._token_helper = token_helper
 
     @LoggingFunctionInfo(
-        logger=Depends(get_base_logger),
         description="Generate a pair of access and refresh JWT tokens"
     )
     async def create_token_pair(self, payload: dict) -> LoginToken:
@@ -52,7 +49,6 @@ class TokenService(ITokenService):
         return self._token_helper.create_token_pair(payload)
 
     @LoggingFunctionInfo(
-        logger=Depends(get_base_logger),
         description="Decode and validate JWT token using project secret and algorithm"
     )
     async def validate_token(self, token: str) -> dict:

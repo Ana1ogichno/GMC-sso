@@ -3,7 +3,7 @@ from uuid import UUID
 from typing import Tuple, Optional
 
 from app.modules.user.models import UserModel
-from app.modules.user.schemas import UserCreate
+from app.modules.user.schemas import ClientUserCreate
 from sqlalchemy.sql.base import ExecutableOption
 
 
@@ -26,7 +26,7 @@ class IUserService(ABC):
         :param custom_options: Optional SQLAlchemy loader options.
         :return: UserModel instance if user is found, otherwise None.
         """
-        pass
+        ...
 
     @abstractmethod
     async def get_user_by_sid(
@@ -38,10 +38,10 @@ class IUserService(ABC):
         :param sid: The session ID of the user to retrieve.
         :return: UserModel instance if user is found, otherwise None.
         """
-        pass
+        ...
 
     @abstractmethod
-    async def create_user(self, user_in: UserCreate) -> UserModel:
+    async def create_user(self, user_in: ClientUserCreate) -> UserModel:
         """
         Create a new user.
 
@@ -49,4 +49,4 @@ class IUserService(ABC):
         :raises BackendException: If a user with the same email already exists.
         :return: Created UserModel instance.
         """
-        pass
+        ...
