@@ -32,33 +32,3 @@ class IUserRepository(ICrudRepository[UserModel, UserCreate, UserUpdate], ABC):
         :return: UserModel instance if found, otherwise None.
         """
         ...
-
-    @abstractmethod
-    async def create_with_hashed_password(
-        self,
-        obj_in: UserCreate,
-        with_commit:
-        bool = True
-    ) -> UserModel:
-        """
-        Create a new user with a hashed password.
-
-        :param obj_in: User creation schema containing raw password and user data.
-        :param with_commit: Whether to commit the transaction after creation.
-        :return: The newly created UserModel instance.
-        """
-        ...
-
-    @abstractmethod
-    async def authenticate(
-            self, email: str, password: str, custom_options: Tuple[ExecutableOption, ...] = None
-    ) -> UserModel | None:
-        """
-        Authenticate a user by verifying email and password.
-
-        :param email: Email used for authentication.
-        :param password: Plaintext password to verify.
-        :param custom_options: Optional SQLAlchemy query options.
-        :return: UserModel instance if authentication succeeds, otherwise None.
-        """
-        ...

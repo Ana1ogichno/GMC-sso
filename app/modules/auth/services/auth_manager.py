@@ -4,12 +4,13 @@ from fastapi import Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
 from app.common.consts import ErrorCodesEnums
+from app.common.contracts import IPasswordHelper
 from app.common.decorators.logger import LoggingFunctionInfo
 from app.common.logger.dependencies import get_base_logger
 from app.config.exception import BackendException
 from app.modules.auth.contracts import IAuthManagerService
 from app.modules.user.contracts import IUserRepository
-from app.modules.user.models import UserModel
+from app.modules.user.schemas import UserInDBBase
 
 
 class AuthManagerService(IAuthManagerService):
@@ -25,6 +26,7 @@ class AuthManagerService(IAuthManagerService):
             self,
             errors: ErrorCodesEnums,
             logger: logging.Logger,
+            password_helper: IPasswordHelper,
             user_repository: IUserRepository
     ):
         """
@@ -32,34 +34,38 @@ class AuthManagerService(IAuthManagerService):
 
         :param errors: Enum provider containing error codes.
         :param logger: Logger instance for tracking authentication operations.
+        :param password_helper: Utility for securely hashing and verifying passwords.
         :param user_repository: An instance of IUserRepository to manage user data access.
         """
 
         self._errors = errors
         self._logger = logger
+        self._password_helper = password_helper
         self._user_repository = user_repository
 
     @LoggingFunctionInfo(
         logger=Depends(get_base_logger),
         description="Authenticates a user using the provided credentials (email and password)."
     )
-    async def authenticate(self, credentials: OAuth2PasswordRequestForm) -> UserModel:
+    async def authenticate(self, credentials: OAuth2PasswordRequestForm) -> UserInDBBase:
         """
         Authenticate the user using provided credentials.
 
         :param credentials: OAuth2 form credentials (username = email, password).
-        :return: The authenticated user model.
+        :return: The authenticated user.
         :raises BackendException: If authentication fails.
         """
 
         self._logger.debug(f"Authenticating user: {credentials.username}")
 
-        user = await self._user_repository.authenticate(
-            email=credentials.username,
-            password=credentials.password
-        )
+        user = await self._user_repository.get_by_email(email=credentials.username)
+
         if not user:
-            self._logger.warning(f"Authentication failed for user: {credentials.username}")
+            self._logger.debug(f"Authentication failed: user with email {credentials.username} not found.")
+            raise BackendException(self._errors.User.INCORRECT_CREDENTIALS)
+
+        if not self._password_helper.verify_password(credentials.password, user.hashed_password):
+            self._logger.debug(f"Authentication failed: invalid password for user {credentials.username}.")
             raise BackendException(self._errors.User.INCORRECT_CREDENTIALS)
 
         self._logger.info(f"User authenticated successfully: {user.email}")
