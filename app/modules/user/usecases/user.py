@@ -1,7 +1,7 @@
 from app.common.decorators.logger import LoggingFunctionInfo
 from app.modules.user.contracts import IUserService, IUserUseCase
 from app.modules.user.models import UserModel
-from app.modules.user.schemas import UserCreate
+from app.modules.user.schemas import ClientUserCreate
 
 
 class UserUseCase(IUserUseCase):
@@ -29,7 +29,7 @@ class UserUseCase(IUserUseCase):
     @LoggingFunctionInfo(
         description="Creates a new user. Checks if the email already exists. If not, the user is created."
     )
-    async def create_user(self, user_in: UserCreate) -> UserModel:
+    async def create_user(self, user_in: ClientUserCreate) -> UserModel:
         """
         Creates a new user.
 
