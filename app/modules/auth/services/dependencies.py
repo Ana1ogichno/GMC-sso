@@ -6,10 +6,10 @@ from redis import Redis
 
 from app.common.consts import ErrorCodesEnums
 from app.common.consts.dependencies import get_error_codes
-from app.common.contracts import ITokenHelper
+from app.common.contracts import ITokenHelper, IPasswordHelper
 from app.common.dependencies import get_redis_client
 from app.common.logger.dependencies import get_auth_logger
-from app.common.utils.dependencies import get_token_helper
+from app.common.utils.dependencies import get_token_helper, get_password_helper
 from app.modules.auth.contracts import (
     IAuthManagerService,
     ITokenService,
@@ -23,6 +23,7 @@ from app.modules.user.repositories.dependencies import get_user_repository
 async def get_auth_manager_service(
     logger: Annotated[logging.Logger, Depends(get_auth_logger)],
     error_codes: Annotated[ErrorCodesEnums, Depends(get_error_codes)],
+    password_helper: Annotated[IPasswordHelper, Depends(get_password_helper)],
     user_repository: Annotated[IUserRepository, Depends(get_user_repository)]
 ) -> IAuthManagerService:
     """
@@ -33,6 +34,7 @@ async def get_auth_manager_service(
 
     :param logger: Logger instance for capturing authentication-related logs.
     :param error_codes: Centralized enumeration of error codes for exception handling.
+    :param password_helper: Utility for securely hashing and verifying passwords.
     :param user_repository: Repository interface for interacting with user data in the database.
     :return: Instance of AuthManagerService implementing IAuthManagerService.
     """
@@ -40,6 +42,7 @@ async def get_auth_manager_service(
     return AuthManagerService(
         errors=error_codes,
         logger=logger,
+        password_helper=password_helper,
         user_repository=user_repository
     )
 
