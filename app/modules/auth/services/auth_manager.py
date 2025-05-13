@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from app.common.consts import ErrorCodesEnums
 from app.common.contracts import IPasswordHelper
 from app.common.decorators.logger import LoggingFunctionInfo
-from app.config.exception import BackendException
+from app.server.middleware.exception import BackendException
 from app.modules.auth.contracts import IAuthManagerService
 from app.modules.user.contracts import IUserRepository
 from app.modules.user.schemas import UserInDBBase
@@ -25,7 +25,7 @@ class AuthManagerService(IAuthManagerService):
             errors: ErrorCodesEnums,
             logger: logging.Logger,
             password_helper: IPasswordHelper,
-            user_repository: IUserRepository
+            user_repository: IUserRepository,
     ):
         """
         Initialize AuthManager with a user repository dependency.

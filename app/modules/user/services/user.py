@@ -6,7 +6,7 @@ from sqlalchemy.sql.base import ExecutableOption
 from app.common.consts import ErrorCodesEnums
 from app.common.contracts import IPasswordHelper
 from app.common.decorators.logger import LoggingFunctionInfo
-from app.config.exception import BackendException
+from app.server.middleware.exception import BackendException
 from app.modules.user.contracts import IUserRepository, IUserService
 from app.modules.user.models import UserModel
 from app.modules.user.schemas import UserCreate, UserInDBBase, ClientUserCreate

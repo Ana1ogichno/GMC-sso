@@ -4,14 +4,14 @@ from typing import TypeVar, Type, Any, Sequence
 from pydantic import BaseModel as PydanticBaseModel
 from sqlalchemy import select, Select, Result
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_scoped_session
 from sqlalchemy.sql.base import ExecutableOption
 
 from app.common.consts import ErrorCodesEnums
 from app.common.contracts import ICrudRepository
 from app.common.decorators.logger import LoggingFunctionInfo
 from app.common.models import CoreModel
-from app.config.exception import BackendException
+from app.server.middleware.exception import BackendException
 
 ModelType = TypeVar("ModelType", bound=CoreModel)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=PydanticBaseModel)
@@ -28,7 +28,7 @@ class CrudRepository(ICrudRepository[ModelType, CreateSchemaType, UpdateSchemaTy
 
     def __init__(
         self,
-        db: AsyncSession,
+        db: async_scoped_session[AsyncSession],
         model: Type[ModelType],
         errors: ErrorCodesEnums,
         logger: logging.Logger,

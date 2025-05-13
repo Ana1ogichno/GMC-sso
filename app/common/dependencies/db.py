@@ -2,9 +2,11 @@ from typing import AsyncGenerator
 
 from fastapi import Depends
 from redis import Redis
+from sqlalchemy.ext.asyncio import async_scoped_session, AsyncSession
 
 from app.config.contracts import IPostgresSessionProvider
 from app.config.db import PostgresSessionProvider
+from app.config.db.postgres.core.dependencies import get_postgres_session_context_manager
 from app.config.db.session import RedisSessionProvider
 
 
@@ -17,12 +19,14 @@ async def get_db_session_provider() -> IPostgresSessionProvider:
     :return: An instance of PostgresSessionProvider.
     """
 
-    return PostgresSessionProvider()
+    return PostgresSessionProvider(
+        context_manager=get_postgres_session_context_manager()
+    )
 
 
 async def get_db(
     session_provider: IPostgresSessionProvider = Depends(get_db_session_provider)
-) -> AsyncGenerator:
+) -> async_scoped_session[AsyncSession]:
     """
     Provides a PostgreSQL database session.
 

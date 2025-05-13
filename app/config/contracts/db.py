@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_scoped_session
 from redis import Redis
 
 
@@ -15,7 +15,7 @@ class IPostgresSessionProvider(ABC):
     """
 
     @abstractmethod
-    def get_session(self) -> AsyncSession:
+    def get_session(self) -> async_scoped_session[AsyncSession]:
         """
         Retrieve an active PostgreSQL async session.
 
@@ -34,6 +34,7 @@ class IRedisSessionProvider(ABC):
 
     This promotes flexibility and testability in components that rely on Redis.
     """
+
     @abstractmethod
     def get_client(self) -> Redis:
         """

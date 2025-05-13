@@ -1,18 +1,17 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_pagination import add_pagination
 from starlette.middleware.sessions import SessionMiddleware
 
-from app.config.dependencies.exception import (
+from app.common.errors import BackendException
+from app.server.middleware import (
     get_exception_handler,
     get_exception_middleware,
-    get_validation_exception_handler
+    get_postgres_context_session_middleware,
+    get_validation_exception_handler,
 )
 from app.config.docs.dependencies import get_tags_metadata, get_app_description
-from app.config.exception import (
-    BackendException,
-)
 from app.config.settings import settings
 from app.router import api_router
 
@@ -22,16 +21,6 @@ origins = [
     "*"
 ]
 
-# === Dependency Injection === #
-tags_metadata = get_tags_metadata()
-app_description = get_app_description()
-
-
-# Exception Handling Dependencies
-backend_exception_handler = get_exception_handler()
-handle_exceptions_middleware = get_exception_middleware()
-validation_exception_handler = get_validation_exception_handler()
-
 
 # === FastAPI App Initialization === #
 app = FastAPI(
@@ -39,9 +28,9 @@ app = FastAPI(
     title=settings.project.PROJECT_NAME,
     version=settings.project.PROJECT_VERSION,
     openapi_url=f"{settings.project.API_V1_STR}/openapi.json",
-    openapi_tags=tags_metadata.get_tags_metadata(),
-    exception_handlers={BackendException: backend_exception_handler.handle},
-    description=app_description.build_description(),
+    openapi_tags=get_tags_metadata().get_tags_metadata(),
+    exception_handlers={BackendException: get_exception_handler().handle},
+    description=get_app_description().build_description(),
     swagger_ui_parameters={
         "defaultModelsExpandDepth": -1,
         "docExpansion": "none",
@@ -63,9 +52,10 @@ def setup_middleware():
     )
 
     app.add_middleware(SessionMiddleware, secret_key=settings.project.OAUTH_SECRET_KEY)
-    app.middleware("http")(handle_exceptions_middleware)  # Global exception handling middleware
+    app.middleware("http")(get_exception_middleware())  # Global exception handling middleware
+    app.middleware("http")(get_postgres_context_session_middleware())
 
-    app.exception_handler(RequestValidationError)(validation_exception_handler.handle)
+    app.exception_handler(RequestValidationError)(get_validation_exception_handler().handle)
 
 
 # === Router Setup === #

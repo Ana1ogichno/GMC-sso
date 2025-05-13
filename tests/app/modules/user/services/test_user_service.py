@@ -3,7 +3,7 @@ from uuid import UUID
 
 import pytest
 
-from app.config.exception import BackendException
+from app.server.middleware.exception import BackendException
 from app.modules.user.models import UserModel
 from app.modules.user.schemas import UserInDBBase, ClientUserCreate
 from app.modules.user.services import UserService

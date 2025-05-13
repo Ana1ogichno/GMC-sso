@@ -1,7 +1,7 @@
 import logging
 from typing import Annotated
 from fastapi import Depends
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_scoped_session
 
 from app.common.consts import ErrorCodesEnums
 from app.common.consts.dependencies import get_error_codes
@@ -12,7 +12,7 @@ from app.modules.user.repositories import UserRepository
 
 
 async def get_user_repository(
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: Annotated[async_scoped_session[AsyncSession], Depends(get_db)],
     logger: Annotated[logging.Logger, Depends(get_user_logger)],
     error_codes: Annotated[ErrorCodesEnums, Depends(get_error_codes)],
 ) -> IUserRepository:

@@ -1,7 +1,10 @@
 from abc import ABC, abstractmethod
+from typing import Callable, Awaitable
+
 from fastapi import Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from starlette.responses import Response
 
 
 class IExceptionHandler(ABC):
@@ -60,5 +63,30 @@ class IValidationExceptionHandler(ABC):
         :param request: The HTTP request that triggered the validation error.
         :param exc: The RequestValidationError to handle.
         :return: A structured JSONResponse with validation error details.
+        """
+        ...
+
+
+class IPostgresContextSessionMiddleware(ABC):
+    """
+    Abstract interface for middleware that manages PostgreSQL session context.
+
+    This middleware is responsible for setting up and tearing down the PostgreSQL session
+    context for each incoming request. It ensures that the session is available during the request
+    lifecycle and properly cleaned up afterward, enabling safe and isolated database operations.
+    """
+
+    @abstractmethod
+    async def __call__(
+        self,
+        request: Request,
+        call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
+        """
+        Handle an incoming HTTP request, injecting the session context.
+
+        :param request: The incoming request object.
+        :param call_next: The next request handler in the ASGI middleware chain.
+        :return: The response object resulting from handling the request.
         """
         ...
