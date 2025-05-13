@@ -6,7 +6,7 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool, sql
 
-from app.config.db.postgres.schemas import Schemas
+from app.config.db.postgres.schemas import PostgresSchemas
 
 sys.path = ["", ".."] + sys.path[1:]
 
@@ -24,7 +24,7 @@ fileConfig(config.config_file_name)
 # target_metadata = mymodel.Base.metadata
 # target_metadata = None
 
-from app.config.db.postgres.metadata import target_metadata  # noqa
+from app.config.db.postgres.utils import target_metadata  # noqa
 from app.config.settings import settings
 
 
@@ -93,8 +93,8 @@ def run_migrations_online():
             include_schemas=True,
         )
 
-        for data in Schemas:
-            schema: Schemas = data
+        for data in PostgresSchemas:
+            schema: PostgresSchemas = data
             connection.execute(
                 sql.text(f"CREATE SCHEMA IF NOT EXISTS {schema.value}")
             )

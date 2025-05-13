@@ -3,12 +3,13 @@ from uuid import UUID, uuid4
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.common.models import CoreModel
-from app.config.db.postgres.schemas import Schemas
-from app.config.db.postgres.table_args import table_args
+from app.config.db.postgres.schemas import PostgresSchemas
+from app.config.db.postgres.utils.table_args import table_args
 
 
 class UserModel(CoreModel):
-    __table_args__ = table_args(schema=Schemas.USERS)
+    # TODO ПЕРЕПИСАТЬ НАХУЙ
+    __table_args__ = table_args(schema=PostgresSchemas.USERS)
 
     sid: Mapped[UUID] = mapped_column(
         primary_key=True,
@@ -18,4 +19,6 @@ class UserModel(CoreModel):
     )
     email: Mapped[str] = mapped_column(index=True, unique=True, comment="email of user")
     hashed_password: Mapped[str] = mapped_column(comment="password")
+
+
 

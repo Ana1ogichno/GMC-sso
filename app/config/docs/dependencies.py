@@ -15,10 +15,8 @@ def get_error_formatter() -> IErrorTableFormatter:
              table representation of the error codes.
     """
 
-    error_codes = get_error_codes()
-
     return ErrorTableMarkdownFormatter(
-        errors=error_codes
+        errors=get_error_codes()
     )
 
 
@@ -33,10 +31,8 @@ def get_app_description() -> IAppDescriptionBuilder:
     :return: An instance of IAppDescriptionBuilder that can be used to generate the app description.
     """
 
-    errors_formatter = get_error_formatter()
-
     return AppDescriptionBuilder(
-        errors_formatter=errors_formatter
+        errors_formatter=get_error_formatter()
     )
 
 

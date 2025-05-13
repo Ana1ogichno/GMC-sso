@@ -1,7 +1,7 @@
 import logging
 
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_scoped_session
 from sqlalchemy.sql.base import ExecutableOption
 
 from app.common.consts import ErrorCodesEnums
@@ -19,7 +19,7 @@ class UserRepository(CrudRepository[UserModel, UserCreate, UserUpdate], IUserRep
 
     def __init__(
             self,
-            db: AsyncSession,
+            db: async_scoped_session[AsyncSession],
             errors: ErrorCodesEnums,
             logger: logging.Logger
     ):

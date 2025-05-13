@@ -1,5 +1,6 @@
 from enum import Enum
 
 
-class Schemas(str, Enum):
+class PostgresSchemas(str, Enum):
+    DEFAULT = "default"
     USERS = "users"

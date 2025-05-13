@@ -1,8 +1,9 @@
 from redis import Redis
-from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
+from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession, async_scoped_session
 
 from app.config.contracts import IPostgresSessionProvider, IRedisSessionProvider
-from app.config.db.postgres.engine import db_engine
+from app.config.db.postgres.contracts import IPostgresSessionContextManager
+from app.config.db.postgres.core import psql_engine
 from app.config.settings import settings
 
 
@@ -14,26 +15,32 @@ class PostgresSessionProvider(IPostgresSessionProvider):
     to create and return asynchronous sessions to interact with the PostgreSQL database.
     """
 
-    def __init__(self):
+    def __init__(
+            self,
+            context_manager: IPostgresSessionContextManager
+    ):
         """
         Initializes the PostgresSessionProvider with an async session factory.
         """
 
         self._session_factory = async_sessionmaker(
-            bind=db_engine,
+            bind=psql_engine,
             autocommit=False,
             autoflush=False,
         )
+        self._context_manager = context_manager
 
-    def get_session(self) -> AsyncSession:
+    def get_session(self) -> async_scoped_session[AsyncSession]:
         """
         Creates and returns a new asynchronous session for PostgreSQL.
 
         :return: A new AsyncSession instance for PostgreSQL.
         """
 
-        # Creating a new PostgreSQL session
-        return self._session_factory()
+        return async_scoped_session(
+            session_factory=self._session_factory,
+            scopefunc=self._context_manager.get_session_context,
+        )
 
 
 class RedisSessionProvider(IRedisSessionProvider):

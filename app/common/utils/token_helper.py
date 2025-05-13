@@ -10,7 +10,7 @@ from app.common.consts import ErrorCodesEnums
 from app.common.contracts.utils import ITokenHelper, ICustomDateTime
 from app.common.decorators.logger import LoggingFunctionInfo
 from app.common.schemas import TokenData, LoginToken
-from app.config.exception import BackendException
+from app.server.middleware.exception import BackendException
 from app.config.settings import settings
 
 

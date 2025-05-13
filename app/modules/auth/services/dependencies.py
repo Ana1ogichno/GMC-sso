@@ -24,7 +24,7 @@ async def get_auth_manager_service(
     logger: Annotated[logging.Logger, Depends(get_auth_logger)],
     error_codes: Annotated[ErrorCodesEnums, Depends(get_error_codes)],
     password_helper: Annotated[IPasswordHelper, Depends(get_password_helper)],
-    user_repository: Annotated[IUserRepository, Depends(get_user_repository)]
+    user_repository: Annotated[IUserRepository, Depends(get_user_repository)],
 ) -> IAuthManagerService:
     """
     Dependency provider for IAuthManagerService implementation.
@@ -43,7 +43,7 @@ async def get_auth_manager_service(
         errors=error_codes,
         logger=logger,
         password_helper=password_helper,
-        user_repository=user_repository
+        user_repository=user_repository,
     )
 
 

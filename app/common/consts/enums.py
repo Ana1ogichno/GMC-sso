@@ -21,7 +21,7 @@ class LoggerConfig:
 class LoggerFormatEnum(StringEnum):
     """Defines different formats for logging."""
 
-    BASE = "%(asctime)s - [%(levelname)s] - %(name)s - (%(filename)s).%(funcName)s(%(lineno)d) - %(message)s"
+    BASE = "%(asctime)s - [%(levelname)s] - %(name)s - (%(filename)s).%(funcName)s(%(lineno)d) %(message)s"
 
 
 class LoggerLevelEnum(StringEnum):

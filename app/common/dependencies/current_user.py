@@ -5,7 +5,7 @@ from fastapi import Depends
 from app.common.consts import ErrorCodesEnums
 from app.common.consts.dependencies import get_error_codes
 from app.common.utils.dependencies import validate_access_token
-from app.config.exception import BackendException
+from app.server.middleware.exception import BackendException
 from app.common.schemas import TokenData
 from app.modules.user.contracts import IUserRepository
 from app.modules.user.models import UserModel
