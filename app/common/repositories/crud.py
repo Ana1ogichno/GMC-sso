@@ -116,7 +116,7 @@ class CrudRepository(ICrudRepository[ModelType, CreateSchemaType, UpdateSchemaTy
         """
 
         query = await self._apply_options(
-            query=select(self.model).where(self.model.sid == sid),    # noqa
+            query=select(self._model).where(self._model.sid == sid),    # noqa
             options=custom_options
         )
 
