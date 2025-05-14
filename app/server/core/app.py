@@ -13,7 +13,7 @@ from app.server.middleware import (
 )
 from app.config.docs.dependencies import get_tags_metadata, get_app_description
 from app.config.settings import settings
-from app.router import api_router
+from app.server.core.controllers import api_controller
 
 
 # === Constants === #
@@ -63,7 +63,7 @@ def include_routers():
     """
     Includes all application routes with API versioning.
     """
-    app.include_router(api_router, prefix=settings.project.API_V1_STR)
+    app.include_router(api_controller, prefix=settings.project.API_V1_STR)
 
 
 # === Pagination Setup === #

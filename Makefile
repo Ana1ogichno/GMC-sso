@@ -6,7 +6,7 @@ PYTEST = $(VENV_DIR)/bin/pytest
 TEST_DIR := tests
 SRC_DIR := app
 
-.PHONY: install-req test test-coverage
+.PHONY: install-req start test test-coverage remove-report
 
 
 install-req:
@@ -19,6 +19,10 @@ test:
 	@echo "Running tests ..."
 	$(PYTEST) $(TEST_DIR) -v
 
+start:
+	@echo "Running tests ..."
+	$(PYTHON) run.py
+
 test-coverage:
 	@echo "Running tests with coverage..."
 	$(PYTEST) $(TEST_DIR) --cov=$(SRC_DIR) --cov-report=term
@@ -28,3 +32,7 @@ test-coverage-report:
 	$(PYTEST) $(TEST_DIR) --cov=$(SRC_DIR) --cov-report=term --cov-report=html
 	cd htmlcov
 	google-chrome htmlcov/index.html
+
+remove-report:
+	@echo "Removing coverage report ..."
+	rm -rf htmlcov

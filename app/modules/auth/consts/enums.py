@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Type
 
 
-class RoutersPath(str, Enum):
+class ControllersPath(str, Enum):
     """
     Enum defining the routing paths for authentication endpoints.
 
