@@ -4,7 +4,7 @@ from app.config.settings import settings
 
 def run():
     uvicorn.run(
-        "app.main:app",
+        "app.server.core.app:app",
         host=settings.project.HOST,
         port=settings.project.PORT,
         reload=True,

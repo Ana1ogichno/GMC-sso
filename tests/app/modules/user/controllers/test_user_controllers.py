@@ -3,11 +3,11 @@ import pytest
 from datetime import datetime
 from uuid import UUID
 
-from app.modules.user.routers.users import get_user_me
+from app.modules.user.controllers.users import UserControllers
 from app.modules.user.schemas import UserInDBBase
 
 
-class TestUserRouter:
+class TestUserControllers:
     @staticmethod
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
@@ -54,6 +54,7 @@ class TestUserRouter:
         ]
     )
     async def test_get_user_me(in_value, expected, result):
-        out_value = await get_user_me(current_user=in_value)
+        user_router = UserControllers()
+        out_value = await user_router.get_user_me(current_user=in_value)
 
         assert (out_value == expected) is result
